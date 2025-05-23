@@ -5,5 +5,5 @@ dependencies:
   - python=3.11
   - fenics-dolfinx
   - mpich
-  - pyvista
+  - pyvista[jupyter]
   - scipy
