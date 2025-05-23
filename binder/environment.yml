@@ -6,3 +6,4 @@ dependencies:
   - fenics-dolfinx
   - mpich
   - pyvista
+  - scipy
