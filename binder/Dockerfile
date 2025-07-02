@@ -25,6 +25,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set up LXDE to start as default session in VNC/Xvfb
 RUN echo "startlxde" > /root/.xinitrc
 
+# Set DISPLAY globally for all sessions (critical for Jupyter notebooks to use Xvfb)
+ENV DISPLAY=:0
+
 RUN chown -R ${NB_UID} ${HOME}
 
 USER ${NB_UID}
