@@ -48,7 +48,4 @@ RUN pip install ipykernel && \
 EXPOSE 5900
 
 # Command: start Xvfb, LXDE, and x11vnc on container launch
-CMD bash -c "Xvfb :0 -screen 0 1280x800x24 & \
-              export DISPLAY=:0 && \
-              startlxde & \
-              x11vnc -display :0 -forever -usepw -shared -nopw"
+CMD xvfb-run -s "-screen 0 1280x800x24" start-notebook.sh
