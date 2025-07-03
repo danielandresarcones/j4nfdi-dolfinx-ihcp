@@ -6,7 +6,10 @@ dependencies:
   - fenics-dolfinx=0.6.0
   - mpich
   - pyvista[all]
+  - panel
+  - ipywidgets
   - scipy
   - pip
 pip:
   - trame_jupyter_extension
+  - ipykernel
