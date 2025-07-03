@@ -3,7 +3,7 @@ FROM quay.io/jupyter/base-notebook:notebook-7.4.3
 COPY . ${HOME}
 USER root
 
-# Install system dependencies including OpenGL libs required by dolfinx/gmsh, plus VNC/desktop
+# Install system dependencies including OpenGL libs required by dolfinx/gmsh
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libxft2 \
     libxrender1 \
@@ -16,17 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libx11-6 \
     libxrandr2 \
     build-essential \
-    x11vnc \
     xvfb \
-    lxde \
-    dbus-x11 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Set up LXDE to start as default session in VNC/Xvfb
-RUN echo "startlxde" > /root/.xinitrc
-
-# Set DISPLAY globally for all sessions (critical for Jupyter notebooks to use Xvfb)
-ENV DISPLAY=:0
 
 RUN chown -R ${NB_UID} ${HOME}
 
@@ -44,8 +35,5 @@ ENV PATH=/opt/conda/envs/fenicsx-env/bin:$PATH
 RUN pip install ipykernel && \
     conda run -n fenicsx-env python -m ipykernel install --user --name=fenicsx-env --display-name "Python (fenicsx-env)"
 
-# Expose VNC port
-EXPOSE 5900
-
-# Command: start Xvfb, LXDE, and x11vnc on container launch
+# Command: start notebook server with xvfb-run for X11 support
 CMD xvfb-run -s "-screen 0 1280x800x24" start-notebook.sh
