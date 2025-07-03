@@ -1,9 +1,10 @@
 FROM quay.io/jupyter/base-notebook:notebook-7.4.3
 
+# Copy all files (e.g., environment.yml, notebooks)
 COPY . ${HOME}
 USER root
 
-# Install system dependencies including OpenGL libs required by dolfinx/gmsh
+# Install system dependencies required for OpenGL and headless rendering
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libxft2 \
     libxrender1 \
@@ -19,21 +20,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN chown -R ${NB_UID} ${HOME}
+# Set correct ownership of home directory
+RUN chown -R ${NB_UID}:${NB_GID} ${HOME}
 
 USER ${NB_UID}
 
-# Create conda environment from your environment.yml
+# Ensure conda is initialized properly
+SHELL ["bash", "-c"]
+
+# Create conda environment
 RUN mamba env create -f binder/environment.yml && \
     conda clean --all -f -y && \
     echo "conda activate fenicsx-env" >> ~/.bashrc
 
+# Activate environment
 ENV CONDA_DEFAULT_ENV=fenicsx-env
 ENV PATH=/opt/conda/envs/fenicsx-env/bin:$PATH
 
-# Install ipykernel in base and link fenicsx-env kernel for Jupyter
+# Install Jupyter kernel and support ipykernel
 RUN pip install ipykernel && \
     conda run -n fenicsx-env python -m ipykernel install --user --name=fenicsx-env --display-name "Python (fenicsx-env)"
 
-# Command: start notebook server with xvfb-run for X11 support
-CMD xvfb-run -s "-screen 0 1280x800x24" start-notebook.sh
+# Make sure PyVista uses the correct backend in notebooks
+ENV PYVISTA_JUPYTER_BACKEND=pythreejs
+
+# Run Jupyter with virtual X display (avoids X server errors)
+CMD ["xvfb-run", "-s", "-screen 0 1280x800x24", "start-notebook.sh"]
