@@ -5,7 +5,7 @@ dependencies:
   - python=3.10
   - fenics-dolfinx=0.6.0
   - mpich
-  - pyvista[all]
+  - pyvista[jupyter]
   - panel
   - ipywidgets
   - scipy
